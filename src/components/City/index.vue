@@ -1,91 +1,110 @@
 <template>
     <div class="city_body">
-				<div class="city_list">
-					<div class="city_hot">
-						<h2>热门城市</h2>
-						<ul class="clearfix">
-							<li>上海</li>
-							<li>北京</li>
-							<li>上海</li>
-							<li>北京</li>
-							<li>上海</li>
-							<li>北京</li>
-							<li>上海</li>
-							<li>北京</li>
-						</ul>
-					</div>
-					<div class="city_sort">
-						<div>
-							<h2>A</h2>
-							<ul>
-								<li>阿拉善盟</li>
-								<li>鞍山</li>
-								<li>安庆</li>
-								<li>安阳</li>
-							</ul>
-						</div>
-						<div>
-							<h2>B</h2>
-							<ul>
-								<li>北京</li>
-								<li>保定</li>
-								<li>蚌埠</li>
-								<li>包头</li>
-							</ul>
-						</div>
-						<div>
-							<h2>A</h2>
-							<ul>
-								<li>阿拉善盟</li>
-								<li>鞍山</li>
-								<li>安庆</li>
-								<li>安阳</li>
-							</ul>
-						</div>
-						<div>
-							<h2>B</h2>
-							<ul>
-								<li>北京</li>
-								<li>保定</li>
-								<li>蚌埠</li>
-								<li>包头</li>
-							</ul>
-						</div>
-						<div>
-							<h2>A</h2>
-							<ul>
-								<li>阿拉善盟</li>
-								<li>鞍山</li>
-								<li>安庆</li>
-								<li>安阳</li>
-							</ul>
-						</div>
-						<div>
-							<h2>B</h2>
-							<ul>
-								<li>北京</li>
-								<li>保定</li>
-								<li>蚌埠</li>
-								<li>包头</li>
-							</ul>
-						</div>	
-					</div>
-				</div>
-				<div class="city_index">
+		<div class="city_list">
+			<div class="city_hot">
+				<h2>热门城市</h2>
+				<ul class="clearfix">
+					<li v-for="item in hotList" :key="item.CityId">{{item.name}}</li>
+				</ul>
+			</div>
+			<div class="city_sort" ref="city_sort">
+				<div v-for="item in cityList" :key="item.index">
+					<h2>{{item.index}}</h2>
 					<ul>
-						<li>A</li>
-						<li>B</li>
-						<li>C</li>
-						<li>D</li>
-						<li>E</li>
+						<li v-for="itemList in item.list" :key="itemList.CityId">{{itemList.name}}</li>
 					</ul>
 				</div>
 			</div>
+		</div>
+		<div class="city_index">
+			<ul>
+				<li v-for="(item,index) in cityList" :key="item.index" @touchstart="handleIndex(index)">{{item.index}}</li>
+			</ul>
+		</div>		
+	</div>
 </template>
 
 <script>
+// import { component } from 'vue/types/umd';
 export default {
-    name : 'City'
+	name : 'City',
+	data (){
+		return{
+			cityList :[],
+			hotList:[]
+		}
+	},
+	mounted(){
+		this.axios({
+			url:'https://m.maizuo.com/gateway?k=3787926',
+			headers:{
+				'X-Client-Info':'{"a":"3000","ch":"1002","v":"5.0.4","e":"1611736763401648161652737"}',
+				'X-Host': 'mall.film-ticket.city.list'
+			}
+		}).then(res=>{
+			// console.log(res.data)
+			var msg=res.data.msg;
+			if(msg==='ok'){
+				var dataList=res.data.data.cities;
+				var {cityList,hotList } =this.forCityList(dataList)
+				// console.log(dataList)
+				this.cityList=cityList;
+				this.hotList=hotList
+			}
+		})
+	},
+	methods : {
+		forCityList(dataList){
+			var cityList=[];
+			var hotList = [];
+			for(var i=0;i<dataList.length;i++){
+				if(dataList[i].isHot===1){
+					hotList.push(dataList[i]);
+				}
+			}
+			for(var i=0;i<dataList.length;i++){
+				var firstLetter=dataList[i].pinyin.substring(0,1).toUpperCase();
+				
+				
+				if(toCom(firstLetter)){
+					cityList.push({index :firstLetter,list:[{name:dataList[i].name,cityId:dataList[i].cityId}]})
+				}else{
+					for(var j=0;j<cityList.length;j++){
+						if(cityList[j].index===firstLetter){
+							cityList[j].list.push({name:dataList[i].name,cityId:dataList[i].cityId});
+						}
+					}
+				}
+				
+			}
+			cityList.sort((n1,n2)=>{
+				if(n1.index>n2.index){
+					return 1;
+				}else if(n1.index<n2.index){
+					return -1;
+				}else{
+					return 0;
+				}
+			})
+			function toCom(firstLetter){
+				for(var i=0;i<cityList.length;i++){
+					if(cityList[i].index===firstLetter){
+						return false
+					}
+				}
+				return true
+			}
+			// console.log(hotList)
+			return {
+				cityList,
+				hotList
+			}
+		},
+		handleIndex(index){
+			var h2=this.$refs.city_sort.getElementsByTagName('h2')
+			this.$refs.city_sort.parentNode.scrollTop=h2[index].offsetTop;
+		}
+	}
 }
 </script>
 

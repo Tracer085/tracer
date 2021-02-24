@@ -1,7 +1,7 @@
 <template>
     <div id="main">
         <Header title="Tracer 电影"/>
-        <TabBar />
+        
         <div id="content">
             <div class="movie_menu">
 				<router-link class="city_name" tag="div" to="/movie/city">
@@ -19,6 +19,10 @@
                  <router-view></router-view>
             </keep-alive>
         </div>
+        <TabBar />
+        
+            <router-view name="detail"></router-view>
+       
     </div>
 </template>
 

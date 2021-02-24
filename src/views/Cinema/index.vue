@@ -1,7 +1,7 @@
 <template>
     <div id="main">
         <Header title="Tracer 影院"/>
-        <TabBar />
+        
         <div id="content">
             <div class="cinema_menu">
 				<div class="city_switch">
@@ -13,8 +13,14 @@
 				<div class="feature_switch">
 					特色 <i class="iconfont icon-lower-triangle"></i>
 				</div>
-			</div>
+			</div> 
+             <CiList />
         </div>
+        
+           
+        
+       <!--  -->
+       <TabBar />
     </div>
 </template>
 
